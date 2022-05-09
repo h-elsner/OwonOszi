@@ -242,7 +242,6 @@ procedure Tmain.CrossHairAfterMouseUp(ATool: TChartTool; APoint: TPoint);
 begin                                                  {Set cursor for Delta}
   Chart.Tag:=CrossHair.PointIndex;
   lnHorPos.Position:=Wave.XValue[Chart.Tag];
-  lblChannel.Caption:=IntToStr(Chart.Tag);
 end;
 
 procedure Tmain.CrossHairDraw(ASender: TDataPointDrawTool);
@@ -274,7 +273,7 @@ end;
 
 procedure Tmain.ClearMetaData;                         {Reset display of meta data}
 begin
-  lblChannel.Caption:=tab1;
+  lblChannel.Caption:='<---';
   rgTeiler.ItemIndex:=0;
   lblFreq.Caption:=idFreq;
   lblPeriod.Caption:=idPeriod;
@@ -399,7 +398,7 @@ begin
               lblAverage.Caption:='Avg'+inlist[i].Split([sep])[1];
             end;
             if pos(idVertical, inlist[i])>0 then begin
-              lblVertical.Caption:='VPos'+gleich+inlist[i].Split([sep])[1];
+              lblVertical.Caption:='Vpos'+gleich+inlist[i].Split([sep])[1];
               vertpos:=StrToFloatDef(clean(inlist[i].Split([sep])[1]), 0);
             end;
             if pos(idVolt, inlist[i])>0 then begin
