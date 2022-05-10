@@ -259,9 +259,13 @@ begin
 end;
 
 procedure Tmain.CrossHairAfterMouseUp(ATool: TChartTool; APoint: TPoint);
-begin                                                  {Set cursor for Delta}
-  Chart.Tag:=CrossHair.PointIndex;
-  lnHorPos.Position:=Wave.XValue[Chart.Tag];
+var                                                    {Set cursor for Delta}
+  cpos: int64;
+
+begin
+  cpos:=CrossHair.PointIndex;
+  if cpos>=0 then
+    lnHorPos.Position:=Wave.XValue[cpos];
 end;
 
 procedure Tmain.CrossHairDraw(ASender: TDataPointDrawTool);
@@ -270,9 +274,11 @@ var                                                    {Show cursor at mouse pos
 
 begin
   idx:=ASender.PointIndex;
-  lblXValue.Caption:=FormatFloat(floatform, Wave.XValue[idx]);
-  lblYValue.Caption:=FormatFloat(floatform, Wave.YValue[idx]);
-  lblDeltaValue.Caption:=FormatFloat(floatform, Wave.XValue[idx]-lnHorPos.Position);
+  if idx>=0 then begin
+    lblXValue.Caption:=FormatFloat(floatform, Wave.XValue[idx]);
+    lblYValue.Caption:=FormatFloat(floatform, Wave.YValue[idx]);
+    lblDeltaValue.Caption:=FormatFloat(floatform, Wave.XValue[idx]-lnHorPos.Position);
+  end;
 end;
 
 procedure Tmain.actLoadBMPExecute(Sender: TObject);
@@ -529,8 +535,8 @@ begin                                                  {Move red cursor lnHorPos
   end;
 end;
 
-procedure Tmain.FormResize(Sender: TObject);
-begin                                                  {Positioning channel label}
+procedure Tmain.FormResize(Sender: TObject);           {Positioning channel label}
+begin
   lblChannel.Left:=TopGui.Width div 2;
 end;
 
