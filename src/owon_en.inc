@@ -26,6 +26,7 @@ capManual='&HDS242 manual';
 capTeiler='Attenuator';
 hntTeiler='Used probe attenuation rate.';
 capChannel='Channel ';
+hntChannel='Open file from HDS242 or drag&drop it to the application window.';
 capSaveScreen='&Save chart...';
 capSaveDlg='Save chart as PNG file...';
 hntSaveScreen='Save chart as picture to PNG file.';

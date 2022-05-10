@@ -1,7 +1,14 @@
+(* Show CSV files with saved waveforms from handheld oscilloscope HDS242.
+   You now can see the waveforms on a larger screen and zoom into it.
+   Zoom with mouse wheel, pan with Left mouse button,
+   cursors with Left mouse button + Shift.
+   With cursors you can measure intervals:
+   1. Place Red cursor somewhere with Left mouse button + Shift. Let it go.
+   2. Move mouse to another place and switch cursor on with
+      Left mouse button + Shift: X-Delta shows the interval between the two cursors.
 
-(*
 
-Format CSV file:
+Format CSV files from HDS242 (example):
 
 Channel			  :,CH1
 Frequency			  :,F=1.498kHz
@@ -17,6 +24,11 @@ index,CH1_Voltage(mV)
 0,-600.00
 1,-620.00
 ...
+
+2022-05-07 first version
+2022-05-08 chart tools added
+2022-05-09 upload version 1.0 to GitHub
+2022-05-10 drag & drop added
 *)
 
 unit owon_oszi_main;
@@ -108,17 +120,21 @@ type
     procedure FormCreate(Sender: TObject);
     procedure actLoadBMPExecute(Sender: TObject);
     procedure actLoadCSVExecute(Sender: TObject);
+    procedure FormDropFiles(Sender: TObject; const FileNames: array of string);
     procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure FormResize(Sender: TObject);
     procedure rgTeilerClick(Sender: TObject);
   private
     procedure ClearMetaData;
+    procedure SetCSVenv;
+    procedure SetBMPenv;
   public
     procedure ZeichneWave(const fn: string; fkt: double);
   end;
 
 var
   main: Tmain;
+  interv: double;                                      {Time interval per sample}
 
 const
   osziname='Owon HDS242';
@@ -136,6 +152,8 @@ const
   gleich='=';
   ziff=['0'..'9', '-', '+', dez];                      {Valid digits and signs for float}
   floatform='0.00';
+  csvext='.CSV';
+  bmpext='.BMP';
 
   idChannel='Channel';
   idCH1='CH1';
@@ -156,17 +174,19 @@ const
 implementation
 
 {$R *.lfm}
+
 {$I owon_dt.inc}                                       {German GUI}
 {.$I owon_en.inc}                                      {English GUI}
 
 { Tmain }
 
-procedure Tmain.FormCreate(Sender: TObject);
+procedure Tmain.FormCreate(Sender: TObject);           {Init GUI}
 begin
   Caption:=osziname;
   OpenDialog.Title:=openCSVfile;
   Image.Visible:=true;
   Chart.Visible:=false;
+  TopGui.Hint:=hntChannel;
   Pic.Color:=clWhite;
   actLoadCSV.Caption:=capCSVfile;
   actLoadBMP.Caption:=capImage;
@@ -257,22 +277,61 @@ end;
 
 procedure Tmain.actLoadBMPExecute(Sender: TObject);
 begin                                                  {Load screenshots from oszi}
-  rgTeiler.Enabled:=false;
   OpenDialog.Title:=openBMPfile;
   OpenDialog.FilterIndex:=2;
   if OpenDialog.Execute then begin
-    Image.Visible:=true;
-    Chart.Visible:=false;
-    actSaveScreen.Enabled:=false;
-    ClearMetaData;
-    Pic.Color:=oszifarbe;
+    SetBMPenv;
     Caption:=osziname+tab1+kop+ExtractFileName(OpenDialog.FileName)+kcl;
     Image.Picture.LoadFromFile(OpenDialog.FileName);
   end;
 end;
 
+procedure Tmain.SetCSVenv;                             {Setup for CSV mode}
+begin
+  rgTeiler.Enabled:=false;
+  Image.Visible:=false;
+  Chart.Visible:=true;
+  actSaveScreen.Enabled:=true;
+end;
+
+procedure Tmain.SetBMPenv;                             {Setup for BMP mode}
+begin
+  rgTeiler.Enabled:=false;
+  Image.Visible:=true;
+  Chart.Visible:=false;
+  actSaveScreen.Enabled:=false;
+  ClearMetaData;
+  Pic.Color:=oszifarbe;
+end;
+
+procedure Tmain.actLoadCSVExecute(Sender: TObject);    {Load CSV file from oszi, main functionality}
+begin
+  OpenDialog.Title:=openCSVfile;
+  OpenDialog.FilterIndex:=1;
+  if OpenDialog.Execute then begin
+    SetCSVenv;
+    Caption:=osziname+tab1+kop+ExtractFileName(OpenDialog.FileName)+kcl;
+    ZeichneWave(OpenDialog.FileName, 1);
+  end;
+end;
+
+procedure Tmain.FormDropFiles(Sender: TObject; const FileNames: array of string);
+begin                                                  {Drop file from file manager}
+  if ExtractFileExt(FileNames[0])=csvext then begin    {CSV mode}
+    SetCSVenv;
+    Caption:=osziname+tab1+kop+ExtractFileName(FileNames[0])+kcl;
+    ZeichneWave(FileNames[0], 1);
+  end;
+  if ExtractFileExt(FileNames[0])=bmpext then begin    {BMP mode}
+    SetBMPenv;
+    Caption:=osziname+tab1+kop+ExtractFileName(FileNames[0])+kcl;
+    Image.Picture.LoadFromFile(FileNames[0]);
+  end;
+end;
+
 procedure Tmain.ClearMetaData;                         {Reset display of meta data}
 begin
+  interv:=0;
   lblChannel.Caption:='<---';
   rgTeiler.ItemIndex:=0;
   lblFreq.Caption:=idFreq;
@@ -340,7 +399,7 @@ var                                                    {Write/rewrite chart with
   i, sampleno, eh: integer;
   dsep: char;                                          {Decimal separator}
   data: boolean;
-  wavevalue, vertpos, interv: double;
+  wavevalue, vertpos: double;
 
 begin
   vertpos:=0;
@@ -359,7 +418,7 @@ begin
     if inlist.Count>10 then begin
       for i:=0 to inlist.Count-1 do begin
         if length(inlist[1])>2 then begin
-          if data then begin                           {Index found, now all lines data}
+          if data then begin                           {Index column header found, now all following lines are waveform data}
             sampleno:=StrToInt(inlist[i].Split([sep])[0]);
             wavevalue:=StrToFloat(inlist[i].Split([sep])[1]);
             Wave.AddXY(sampleno*interv, (wavevalue+vertpos)*fkt);
@@ -447,40 +506,21 @@ begin
   end;
 end;
 
-procedure Tmain.actLoadCSVExecute(Sender: TObject);    {Load CSV file from oszi, main functionality}
-begin
-  rgTeiler.Enabled:=false;
-  OpenDialog.Title:=openCSVfile;
-  OpenDialog.FilterIndex:=1;
-  if OpenDialog.Execute then begin
-    Image.Visible:=false;
-    Chart.Visible:=true;
-    actSaveScreen.Enabled:=true;
-    Caption:=osziname+tab1+kop+ExtractFileName(OpenDialog.FileName)+kcl;
-    ZeichneWave(OpenDialog.FileName, 1);
-  end;
-end;
-
 procedure Tmain.FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
-var                                                    {Move cursor 1}
-  step: double;
-
-begin
+begin                                                  {Move red cursor lnHorPos}
   if Chart.Visible then begin
     if ssShift in Shift then begin                     {Shift + ...}
-      step:=Wave.XValue[1]-Wave.XValue[0];
       if key=39 then begin                             {Right}
-        lnHorPos.Position:=lnHorPos.Position+step;
+        lnHorPos.Position:=lnHorPos.Position+interv;
       end;
       if key=37 then begin                             {Left}
-        lnHorPos.Position:=lnHorPos.Position-step;
+        lnHorPos.Position:=lnHorPos.Position-interv;
       end;
-      step:=Wave.XValue[1]-Wave.XValue[0];
       if key=33 then begin                             {Page up}
-        lnHorPos.Position:=lnHorPos.Position+1;
+        lnHorPos.Position:=lnHorPos.Position+interv*10;
       end;
       if key=34 then begin                             {Page down}
-        lnHorPos.Position:=lnHorPos.Position-1;
+        lnHorPos.Position:=lnHorPos.Position-interv*10;
       end;
       if key=36 then begin                             {Pos1}
         lnHorPos.Position:=0;

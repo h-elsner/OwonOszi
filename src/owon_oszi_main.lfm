@@ -1,8 +1,9 @@
 object main: Tmain
-  Left = 1265
+  Left = 1266
   Height = 440
   Top = 119
   Width = 640
+  AllowDropFiles = True
   Caption = 'main'
   ClientHeight = 416
   ClientWidth = 640
@@ -11,6 +12,7 @@ object main: Tmain
   KeyPreview = True
   Menu = MainMenu
   OnCreate = FormCreate
+  OnDropFiles = FormDropFiles
   OnKeyUp = FormKeyUp
   OnResize = FormResize
   Position = poDefaultPosOnly

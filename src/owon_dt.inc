@@ -26,6 +26,7 @@ capManual='&HDS242 Handbuch';
 capTeiler='Teiler';
 hntTeiler='Teilerfaktor des Tastkopfes.';
 capChannel='Kanal ';
+hntChannel='Öffne Datei vom HDS242 oder schiebe sie per Drag&Drop auf das Programmfenster.';
 capSaveScreen='&Anzeige speichern...';
 capSaveDlg='Anzeige in PNG-Datei speichern...';
 hntSaveScreen='Anzeige als Bild in PNG-Datei speichern.';
