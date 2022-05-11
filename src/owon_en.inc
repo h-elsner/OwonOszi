@@ -34,5 +34,6 @@ capKursor='Cursor (+ Shift)';
 hntKursor='Show cursor by left mouse key + Shift key.';
 capDownload='Download updates';
 capHomepage='Homepage';
+errNoData='No valid data';
 
 

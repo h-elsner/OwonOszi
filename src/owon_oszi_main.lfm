@@ -18,7 +18,7 @@ object main: Tmain
   Position = poDefaultPosOnly
   SessionProperties = 'Height;Width;WindowState;OpenDialog.InitialDir;SaveDialog.InitialDir'
   ShowHint = True
-  LCLVersion = '2.3.0.0'
+  LCLVersion = '2.2.0.4'
   object TopGUI: TPanel
     Left = 0
     Height = 58
@@ -66,7 +66,6 @@ object main: Tmain
       Width = 68
       Caption = 'lblChannel'
       Font.Style = [fsBold]
-      ParentColor = False
       ParentFont = False
     end
   end
@@ -3754,7 +3753,6 @@ object main: Tmain
       Top = 16
       Width = 43
       Caption = 'lblFreq'
-      ParentColor = False
     end
     object lblPeriod: TLabel
       Left = 10
@@ -3762,7 +3760,6 @@ object main: Tmain
       Top = 40
       Width = 55
       Caption = 'lblPeriod'
-      ParentColor = False
     end
     object lblPeak: TLabel
       Left = 10
@@ -3770,7 +3767,6 @@ object main: Tmain
       Top = 64
       Width = 45
       Caption = 'lblPeak'
-      ParentColor = False
     end
     object lblAverage: TLabel
       Left = 10
@@ -3778,7 +3774,6 @@ object main: Tmain
       Top = 88
       Width = 66
       Caption = 'lblAverage'
-      ParentColor = False
     end
     object lblVertical: TLabel
       Left = 10
@@ -3786,7 +3781,6 @@ object main: Tmain
       Top = 112
       Width = 61
       Caption = 'lblVertical'
-      ParentColor = False
     end
     object lblVolt: TLabel
       Left = 10
@@ -3794,7 +3788,6 @@ object main: Tmain
       Top = 144
       Width = 41
       Caption = 'lblVolt'
-      ParentColor = False
     end
     object lblInterval: TLabel
       Left = 10
@@ -3802,7 +3795,6 @@ object main: Tmain
       Top = 168
       Width = 63
       Caption = 'lblInterval'
-      ParentColor = False
     end
     object gbKursor: TGroupBox
       Left = 10
@@ -3819,7 +3811,6 @@ object main: Tmain
         Top = 8
         Width = 24
         Caption = 'lblX'
-        ParentColor = False
       end
       object lblXValue: TLabel
         Left = 112
@@ -3827,7 +3818,6 @@ object main: Tmain
         Top = 8
         Width = 8
         Caption = 'X'
-        ParentColor = False
       end
       object lblYValue: TLabel
         Left = 112
@@ -3835,7 +3825,6 @@ object main: Tmain
         Top = 40
         Width = 8
         Caption = 'Y'
-        ParentColor = False
       end
       object lblY: TLabel
         Left = 8
@@ -3843,7 +3832,6 @@ object main: Tmain
         Top = 40
         Width = 24
         Caption = 'lblY'
-        ParentColor = False
       end
       object lblDeltaValue: TLabel
         Left = 112
@@ -3851,7 +3839,6 @@ object main: Tmain
         Top = 24
         Width = 83
         Caption = 'lblDeltaValue'
-        ParentColor = False
       end
       object lblDelta: TLabel
         Left = 8
@@ -3859,7 +3846,6 @@ object main: Tmain
         Top = 24
         Width = 49
         Caption = 'lblDelta'
-        ParentColor = False
       end
     end
   end

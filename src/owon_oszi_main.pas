@@ -1,3 +1,18 @@
+          {********************************************************}
+          {                                                        }
+          {    Anzeige von Waveformdateien vom Oszi Owon HDS242    }
+          {                                                        }
+          {       Copyright (c) 2022    Helmut Elsner              }
+          {                                                        }
+          {       Compiler: FPC 3.2.2   /  Lazarus 2.2.0           }
+          {                                                        }
+          { Pascal programmers tend to plan ahead, they think      }
+          { before they type. We type a lot because of Pascal      }
+          { verboseness, but usually our code is right from the    }
+          { start. We end up typing less because we fix less bugs. }
+          {           [Jorge Aldo G. de F. Junior]                 }
+          {********************************************************}
+
 (* Show CSV files with saved waveforms from handheld oscilloscope HDS242.
    You now can see the waveforms on a larger screen and zoom into it.
    Zoom with mouse wheel, pan with Left mouse button,
@@ -270,10 +285,12 @@ end;
 
 procedure Tmain.CrossHairDraw(ASender: TDataPointDrawTool);
 var                                                    {Show cursor at mouse pos}
-  idx: integer;
+  idx: int64;
 
 begin
   idx:=ASender.PointIndex;
+    {If zoomed-in to deep the idx reports -1 between the datapoints,
+     this needs to be checked before reading and show the X, Y and delta values}
   if idx>=0 then begin
     lblXValue.Caption:=FormatFloat(floatform, Wave.XValue[idx]);
     lblYValue.Caption:=FormatFloat(floatform, Wave.YValue[idx]);
@@ -408,13 +425,6 @@ var                                                    {Write/rewrite chart with
   wavevalue, vertpos: double;
 
 begin
-  vertpos:=0;
-  lnVertPos.Position:=0;
-  lnHorPos.Position:=0;
-  interv:=1;
-  data:=false;
-  Wave.Clear;
-  ClearMetaData;
   inlist:=TStringList.Create;
   Screen.Cursor:=crHourGlass;
   dsep:=DefaultFormatSettings.DecimalSeparator;        {Remember decimal separator}
@@ -422,6 +432,13 @@ begin
   try
     inlist.LoadFromFile(fn);
     if inlist.Count>10 then begin
+      vertpos:=0;
+      lnVertPos.Position:=0;
+      lnHorPos.Position:=0;
+      interv:=1;
+      data:=false;
+      ClearMetaData;
+      Wave.Clear;
       for i:=0 to inlist.Count-1 do begin
         if length(inlist[1])>2 then begin
           if data then begin                           {Index column header found, now all following lines are waveform data}
@@ -501,8 +518,10 @@ begin
         actSaveScreen.Enabled:=true;
         lblXValue.Caption:=FormatFloat(floatform, Wave.XValue[0]);
         lblYValue.Caption:=FormatFloat(floatform, Wave.YValue[0]);
-      end;
-    end;
+      end else
+        lblChannel.Caption:=errNoData;
+    end else
+      lblChannel.Caption:=errNoData;
   finally
     inlist.Free;
     Screen.Cursor:=crDefault;

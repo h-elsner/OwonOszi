@@ -34,5 +34,6 @@ capKursor='Kursor (+ Shift)';
 hntKursor='Kursor mit linker Maustaste + Shift-Taste anzeigen';
 capDownload='Download Update';
 capHomepage='Homepage';
+errNoData='Keine gültigen Daten';
 
 
