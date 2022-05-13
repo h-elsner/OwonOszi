@@ -44,6 +44,7 @@ index,CH1_Voltage(mV)
 2022-05-08 chart tools added
 2022-05-09 upload version 1.0 to GitHub
 2022-05-10 drag & drop added
+2022-05-12 Menu save a copy added
 *)
 
 unit owon_oszi_main;
@@ -54,8 +55,8 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, lclintf,
-  XMLPropStorage, ActnList, Menus, ExtCtrls, Buttons, StdCtrls, TAGraph,
-  TASeries, TATools, TADataTools, Types;
+  XMLPropStorage, ActnList, Menus, ExtCtrls, Buttons, StdCtrls, EditBtn,
+  TAGraph, TASeries, TATools, TADataTools, Types;
 
 type
 
@@ -68,7 +69,11 @@ type
     actSaveScreen: TAction;
     actManual: TAction;
     actClose: TAction;
+    btnOK: TBitBtn;
     Chart: TChart;
+    cbCopy: TCheckBox;
+    CopyDir: TDirectoryEdit;
+    gbCopy: TGroupBox;
     lblDelta: TLabel;
     lblDeltaValue: TLabel;
     lnHorPos: TConstantLine;
@@ -98,6 +103,7 @@ type
     BitBtn1: TBitBtn;
     BitBtn2: TBitBtn;
     BitBtn3: TBitBtn;
+    mnCopy: TMenuItem;
     mnHomepage: TMenuItem;
     mnDownload: TMenuItem;
     mnSaveChart1: TMenuItem;
@@ -128,23 +134,28 @@ type
     procedure actHomepageExecute(Sender: TObject);
     procedure actManualExecute(Sender: TObject);
     procedure actSaveScreenExecute(Sender: TObject);
+    procedure btnOKClick(Sender: TObject);
     procedure ChartMouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure CrossHairAfterMouseUp(ATool: TChartTool; APoint: TPoint);
     procedure CrossHairDraw(ASender: TDataPointDrawTool);
+    procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure actLoadBMPExecute(Sender: TObject);
     procedure actLoadCSVExecute(Sender: TObject);
     procedure FormDropFiles(Sender: TObject; const FileNames: array of string);
     procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure FormResize(Sender: TObject);
+    procedure mnCopyClick(Sender: TObject);
     procedure rgTeilerClick(Sender: TObject);
   private
     procedure ClearMetaData;
     procedure SetCSVenv;
     procedure SetBMPenv;
+    procedure ExchangeIcons;                           {Show status of copy action}
   public
     procedure ZeichneWave(const fn: string; fkt: double);
+    procedure SaveCopyWave(list: TStringList);         {Save a copy of the waveform with new file name}
   end;
 
 var
@@ -167,6 +178,7 @@ const
   gleich='=';
   ziff=['0'..'9', '-', '+', dez];                      {Valid digits and signs for float}
   floatform='0.00';
+  copyfn='HDS242_wave_';
   csvext='.CSV';
   bmpext='.BMP';
 
@@ -195,7 +207,7 @@ implementation
 
 { Tmain }
 
-procedure Tmain.FormCreate(Sender: TObject);           {Init GUI}
+procedure Tmain.FormCreate(Sender: TObject);           {Init GUI with language settings}
 begin
   Caption:=osziname;
   OpenDialog.Title:=openCSVfile;
@@ -227,6 +239,14 @@ begin
   lblDelta.Caption:=rsDelta;
   gbKursor.Caption:=capKursor;
   gbKursor.Hint:=hntKursor;
+  mnCopy.Caption:=capCopy;
+  mnCopy.Hint:=hntCopy;
+  gbCopy.Caption:=capCopy;
+  gbCopy.Hint:=hntCopy;
+  cbCopy.Caption:=capCopy;
+  CopyDir.Hint:=hntCopyDir;
+  CopyDir.TextHint:=hntCopyDir;
+  btnOK.Hint:=hntOK;
   ClearMetaData;
 end;
 
@@ -250,12 +270,26 @@ begin
   OpenDocument(Application.Location+manual);
 end;
 
-procedure Tmain.actSaveScreenExecute(Sender: TObject); {Save chart as PNG}
+procedure Tmain.actSaveScreenExecute(Sender: TObject); {Save chart as PNG pic}
 begin
   SaveDialog.Title:=capSaveDlg;
   SaveDialog.FileName:=ChangeFileExt(OpenDialog.FileName, '.png');
   if SaveDialog.Execute then
     Chart.SaveToFile(TPortableNetworkGraphic, SaveDialog.FileName);
+end;
+
+procedure Tmain.ExchangeIcons;                         {Show status of copy action in menu icon}
+begin
+  if cbCopy.Checked then
+    mnCopy.ImageIndex:=10
+  else
+    mnCopy.ImageIndex:=8;
+  gbCopy.Visible:=false;                               {Close settings window}
+end;
+
+procedure Tmain.btnOKClick(Sender: TObject);           {Selection for copy done}
+begin
+  ExchangeIcons;
 end;
 
 procedure Tmain.actAboutExecute(Sender: TObject);      {About box}
@@ -296,6 +330,11 @@ begin
     lblYValue.Caption:=FormatFloat(floatform, Wave.YValue[idx]);
     lblDeltaValue.Caption:=FormatFloat(floatform, Wave.XValue[idx]-lnHorPos.Position);
   end;
+end;
+
+procedure Tmain.FormActivate(Sender: TObject);         {Take over status of copy selection}
+begin
+  ExchangeIcons;
 end;
 
 procedure Tmain.actLoadBMPExecute(Sender: TObject);
@@ -354,7 +393,8 @@ end;
 
 procedure Tmain.ClearMetaData;                         {Reset display of meta data}
 begin
-  interv:=0;
+  gbCopy.Visible:=false;
+  interv:=0;                                           {Reset global variable for time interval}
   lblChannel.Caption:='<---';
   rgTeiler.ItemIndex:=0;
   lblFreq.Caption:=idFreq;
@@ -380,26 +420,38 @@ begin
   for i:=1 to length(v) do
     if v[i] in ziff then
       result:=result+v[i];
-  if result='' then
+  if result='' then                                    {Nothing found, set to zero}
     result:='0';
 end;
 
-function Einheit(const s: string): integer;            {Identify measurement units}
+function Einheit(const mu: string): integer;           {Identify measurement units}
+var
+  s: string;
+
+const
+  p=13;                                                {Min position of measurement unit}
+
 begin
-  result:=4;
-  if pos('S', s)>6 then
+  result:=4;                                           {Invalid ID}
+  s:=Lowercase(mu);
+  if pos('s', s)>p then
     result:=0;
-  if pos('mS', s)>6 then
+  if pos('ms', s)>p then begin
     result:=1;
-  if pos('uS', s)>6 then
+    exit;
+  end;
+  if pos('us', s)>p then begin
     result:=2;
-  if pos('us', s)>6 then
-    result:=2;
-  if pos('nS', s)>6 then
+    exit;
+  end;
+  if pos('ns', s)>p then begin
     result:=3;
-  if pos('V', s)>6 then
+    exit;
+  end;
+
+  if pos('v', s)>p then
     result:=8;
-  if pos('mV', s)>6 then
+  if pos('mv', s)>p then
     result:=9;
 end;
 
@@ -411,9 +463,18 @@ begin
     1: result:='ms';
     2: result:='µs';
     3: result:='ns';
+    4: result:='?';                                    {Invalid}
+    5: result:='samples';
     8: result:='V';
     9: result:='mV';
   end;
+end;
+
+procedure Tmain.SaveCopyWave(list: TStringList);       {Save a copy of the waveform with new file name}
+begin
+  if (CopyDir.Text<>'') and DirectoryExists(CopyDir.Directory) then
+    list.SaveToFile(IncludeTrailingPathDelimiter(CopyDir.Directory)+copyfn+
+                    FormatDateTime('yyyymmdd_hhnnss_zzz', now)+csvext);
 end;
 
 procedure Tmain.ZeichneWave(const fn: string; fkt: double);
@@ -425,13 +486,14 @@ var                                                    {Write/rewrite chart with
   wavevalue, vertpos: double;
 
 begin
+  gbCopy.Visible:=false;
   inlist:=TStringList.Create;
   Screen.Cursor:=crHourGlass;
   dsep:=DefaultFormatSettings.DecimalSeparator;        {Remember decimal separator}
   DefaultFormatSettings.DecimalSeparator:=dez;
   try
     inlist.LoadFromFile(fn);
-    if inlist.Count>10 then begin
+    if inlist.Count>10 then begin                      {Smaller files do not contain valid data}
       vertpos:=0;
       lnVertPos.Position:=0;
       lnHorPos.Position:=0;
@@ -439,6 +501,7 @@ begin
       data:=false;
       ClearMetaData;
       Wave.Clear;
+      Wave.BeginUpdate;
       for i:=0 to inlist.Count-1 do begin
         if length(inlist[1])>2 then begin
           if data then begin                           {Index column header found, now all following lines are waveform data}
@@ -447,56 +510,71 @@ begin
             Wave.AddXY(sampleno*interv, (wavevalue+vertpos)*fkt);
           end else begin
             if pos(idIndex, inlist[i])>0 then begin    {Header of data found}
-              lblY.Caption:=rsVolt+kop+EinheitStr(Einheit(inlist[i].Split([sep])[1]))+kcl;
+              lblY.Caption:=rsVolt+tab1+kop+EinheitStr(Einheit(inlist[i]))+kcl;
               Chart.AxisList[0].Title.Caption:=lblY.Caption;
               data:=true;
+              continue;
             end;
             if pos(idChannel, inlist[i])>0 then begin  {Channel in use}
-              if pos(idCH1, inlist[i])>10 then begin
+              if pos(idCH1, inlist[i])>10 then begin   {Channel 1}
                 lblChannel.Caption:=capChannel+'1';
                 Wave.SeriesColor:=ch1color;
-              end else begin
+              end else begin                           {Channel 2}
                 if pos(idCH2, inlist[i])>10 then begin
                   lblChannel.Caption:=capChannel+'2';
                   Wave.SeriesColor:=ch2color;
                 end;
               end;
+              continue;
             end;
             if pos(idFreq, inlist[i])>0 then begin     {Frequency if it is available}
               lblFreq.Caption:=inlist[i].Split([sep])[1];
               if pos('?', lblFreq.Caption)<1 then
                 lblChannel.Caption:=lblChannel.Caption+'         '+
                 StringReplace(lblFreq.Caption, 'F=', '', []);
+              continue;
             end;
-            if pos(idPeriod, inlist[i])>0 then begin
+            if pos(idPeriod, inlist[i])>0 then begin   {Show period as it is, T=...}
               lblPeriod.Caption:=StringReplace(inlist[i].Split([sep])[1], 'us', 'µs', []);
+              continue;
             end;
             if pos(idPeak, inlist[i])>0 then begin
               wavevalue:=StrToFloatDef(clean(inlist[i].Split([sep])[1]), 0)*fkt;
               eh:=Einheit(inlist[i]);
               lblPeak.Caption:='Vpp'+gleich+FormatFloat(floatform, wavevalue)+EinheitStr(eh);
+              continue;
             end;
             if pos(idAverage, inlist[i])>0 then begin
               lblAverage.Caption:='Avg'+inlist[i].Split([sep])[1];
+              continue;
             end;
             if pos(idVertical, inlist[i])>0 then begin
               lblVertical.Caption:='Vpos'+gleich+inlist[i].Split([sep])[1];
               vertpos:=StrToFloatDef(clean(inlist[i].Split([sep])[1]), 0);
+              continue;
             end;
             if pos(idVolt, inlist[i])>0 then begin
               lblVolt.Caption:='ADC value'+gleich+inlist[i].Split([sep])[1];
+              continue;
             end;
             if pos(idInterval, inlist[i])>0 then begin {Time axis interval}
               interv:=StrToFloatDef(clean(inlist[i].Split([sep])[1]), 1);
               eh:=Einheit(inlist[i]);
-              if (interv>99) and (eh>0) then begin     {Optimize interval x axis}
-                eh:=eh-1;
-                interv:=interv/1000;
+              if interv=0 then begin                   {FW error HDS242 for Horizontal time base in nano sec}
+                eh:=5;                                 {samples}
+                interv:=1;
+                lblInterval.Caption:=idInterval+gleich+'1 sample';
+              end else begin
+                if (interv>99) and (eh>0) then begin   {Optimize interval x axis}
+                  eh:=eh-1;
+                  interv:=interv/1000;
+                end;
+                lblInterval.Caption:=idInterval+gleich+FormatFloat(floatform, interv)+EinheitStr(eh);
               end;
-              lblInterval.Caption:='Interval'+gleich+FormatFloat(floatform, interv)+EinheitStr(eh);
               lblX.Caption:=rsTime+tab1+kop+EinheitStr(eh)+kcl;
-              lblDelta.Caption:=rsDelta+tab1+kop+EinheitStr(eh)+kcl;
               Chart.AxisList[1].Title.Caption:=lblX.Caption;
+              lblDelta.Caption:=rsDelta+tab1+kop+EinheitStr(eh)+kcl;
+              continue;
             end;
             if pos(idTeiler, inlist[i])>0 then begin   {Probe attenuation}
               if pos(id1X, inlist[i])>1 then begin
@@ -518,11 +596,14 @@ begin
         actSaveScreen.Enabled:=true;
         lblXValue.Caption:=FormatFloat(floatform, Wave.XValue[0]);
         lblYValue.Caption:=FormatFloat(floatform, Wave.YValue[0]);
+        if cbCopy.Checked and (pos(copyfn, ExtractFileName(fn))=0) then
+          SaveCopyWave(inlist);
       end else
         lblChannel.Caption:=errNoData;
     end else
       lblChannel.Caption:=errNoData;
   finally
+    Wave.EndUpdate;
     inlist.Free;
     Screen.Cursor:=crDefault;
     DefaultFormatSettings.DecimalSeparator:=dsep;      {Restore decimal separator}
@@ -537,15 +618,19 @@ begin                                                  {Move red cursor lnHorPos
     if ssShift in Shift then begin                     {Shift + ...}
       if key=39 then begin                             {Right}
         lnHorPos.Position:=lnHorPos.Position+interv;
+        exit;
       end;
       if key=37 then begin                             {Left}
         lnHorPos.Position:=lnHorPos.Position-interv;
+        exit;
       end;
       if key=33 then begin                             {Page up}
         lnHorPos.Position:=lnHorPos.Position+interv*10;
+        exit;
       end;
       if key=34 then begin                             {Page down}
         lnHorPos.Position:=lnHorPos.Position-interv*10;
+        exit;
       end;
       if key=36 then begin                             {Pos1}
         lnHorPos.Position:=0;
@@ -557,6 +642,11 @@ end;
 procedure Tmain.FormResize(Sender: TObject);           {Positioning channel label}
 begin
   lblChannel.Left:=TopGui.Width div 2;
+end;
+
+procedure Tmain.mnCopyClick(Sender: TObject);          {Enable the settings for copy}
+begin
+  gbCopy.Visible:=true;
 end;
 
 procedure Tmain.rgTeilerClick(Sender: TObject);        {Correct probe attenuation rate}

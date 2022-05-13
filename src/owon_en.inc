@@ -35,5 +35,9 @@ hntKursor='Show cursor by left mouse key + Shift key.';
 capDownload='Download updates';
 capHomepage='Homepage';
 errNoData='No valid data';
+capCopy='Save a copy';
+hntCopy='Save a copy of the waveform in a selected local directory.';
+hntCopyDir='Select directory.';
+hntOK='Close this dialog.';
 
 

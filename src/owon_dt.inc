@@ -35,5 +35,9 @@ hntKursor='Kursor mit linker Maustaste + Shift-Taste anzeigen';
 capDownload='Download Update';
 capHomepage='Homepage';
 errNoData='Keine gültigen Daten';
+capCopy='Kopie speichern';
+hntCopy='Eine Kopie der Waveform in dem ausgewählten Verzeichnis speichern.';
+hntCopyDir='Speicherort auswählen';
+hntOK='Diesen Dialog schliessen.';
 
 
