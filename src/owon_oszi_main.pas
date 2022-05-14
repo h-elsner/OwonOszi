@@ -56,7 +56,7 @@ interface
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, lclintf,
   XMLPropStorage, ActnList, Menus, ExtCtrls, Buttons, StdCtrls, EditBtn,
-  TAGraph, TASeries, TATools, TADataTools, Types;
+  TAGraph, TASeries, TATools, TADataTools, Types, lazUTF8;
 
 type
 
@@ -149,6 +149,7 @@ type
     procedure mnCopyClick(Sender: TObject);
     procedure rgTeilerClick(Sender: TObject);
   private
+    procedure StartFile(fn: string);                   {Start action depending on file name}
     procedure ClearMetaData;
     procedure SetCSVenv;
     procedure SetBMPenv;
@@ -208,6 +209,9 @@ implementation
 { Tmain }
 
 procedure Tmain.FormCreate(Sender: TObject);           {Init GUI with language settings}
+var
+  fn: string;
+
 begin
   Caption:=osziname;
   OpenDialog.Title:=openCSVfile;
@@ -248,6 +252,9 @@ begin
   CopyDir.TextHint:=hntCopyDir;
   btnOK.Hint:=hntOK;
   ClearMetaData;
+  fn:=trim(ParamstrUTF8(1));                           {File name added as first (and only) parameter}
+  if fn<>'' then
+    StartFile(fn);
 end;
 
 procedure Tmain.actCloseExecute(Sender: TObject);      {Close application}
@@ -377,18 +384,25 @@ begin
   end;
 end;
 
+procedure Tmain.StartFile(fn: string);                 {Start action depending on file name}
+begin
+  if ExtractFileExt(fn)=csvext then begin              {CSV mode}
+    SetCSVenv;
+    Caption:=osziname+tab1+kop+ExtractFileName(fn)+kcl;
+    ZeichneWave(fn, 1);
+  end else begin
+    if ExtractFileExt(fn)=bmpext then begin            {BMP mode}
+      SetBMPenv;
+      Caption:=osziname+tab1+kop+ExtractFileName(fn)+kcl;
+      Image.Picture.LoadFromFile(fn);
+    end;
+  end;
+  Application.BringToFront;
+end;
+
 procedure Tmain.FormDropFiles(Sender: TObject; const FileNames: array of string);
 begin                                                  {Drop file from file manager}
-  if ExtractFileExt(FileNames[0])=csvext then begin    {CSV mode}
-    SetCSVenv;
-    Caption:=osziname+tab1+kop+ExtractFileName(FileNames[0])+kcl;
-    ZeichneWave(FileNames[0], 1);
-  end;
-  if ExtractFileExt(FileNames[0])=bmpext then begin    {BMP mode}
-    SetBMPenv;
-    Caption:=osziname+tab1+kop+ExtractFileName(FileNames[0])+kcl;
-    Image.Picture.LoadFromFile(FileNames[0]);
-  end;
+  StartFile(FileNames[0]);
 end;
 
 procedure Tmain.ClearMetaData;                         {Reset display of meta data}
