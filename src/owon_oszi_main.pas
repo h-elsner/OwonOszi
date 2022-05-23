@@ -174,16 +174,16 @@ const
   tab1=' ';
   kop='[';
   kcl=']';
-  sep=',';
+  sep=',';                                             {data separator}
   dez='.';                                             {Decimal separator in use}
   gleich='=';
   ziff=['0'..'9', '-', '+', dez];                      {Valid digits and signs for float}
   floatform='0.00';
-  copyfn='HDS242_wave_';
+  copyfn='HDS242_wave_';                               {File name base for wave copys}
   csvext='.CSV';
   bmpext='.BMP';
 
-  idChannel='Channel';
+  idChannel='Channel';                                 {keywords from original waveform files}
   idCH1='CH1';
   idCH2='CH2';
   idFreq='Frequency';
@@ -203,8 +203,8 @@ implementation
 
 {$R *.lfm}
 
-{$I owon_dt.inc}                                       {German GUI}
-{.$I owon_en.inc}                                      {English GUI}
+{.$I owon_dt.inc}                                       {German GUI}
+{$I owon_en.inc}                                      {English GUI}
 
 { Tmain }
 
@@ -402,6 +402,7 @@ end;
 
 procedure Tmain.FormDropFiles(Sender: TObject; const FileNames: array of string);
 begin                                                  {Drop file from file manager}
+  OpenDialog.FileName:=FileNames[0];
   StartFile(FileNames[0]);
 end;
 
@@ -552,22 +553,22 @@ begin
               lblPeriod.Caption:=StringReplace(inlist[i].Split([sep])[1], 'us', 'µs', []);
               continue;
             end;
-            if pos(idPeak, inlist[i])>0 then begin
+            if pos(idPeak, inlist[i])>0 then begin     {PK-PK peak voltage}
               wavevalue:=StrToFloatDef(clean(inlist[i].Split([sep])[1]), 0)*fkt;
               eh:=Einheit(inlist[i]);
               lblPeak.Caption:='Vpp'+gleich+FormatFloat(floatform, wavevalue)+EinheitStr(eh);
               continue;
             end;
-            if pos(idAverage, inlist[i])>0 then begin
+            if pos(idAverage, inlist[i])>0 then begin  {Average voltage}
               lblAverage.Caption:='Avg'+inlist[i].Split([sep])[1];
               continue;
             end;
-            if pos(idVertical, inlist[i])>0 then begin
+            if pos(idVertical, inlist[i])>0 then begin {Vertical position, zero line}
               lblVertical.Caption:='Vpos'+gleich+inlist[i].Split([sep])[1];
               vertpos:=StrToFloatDef(clean(inlist[i].Split([sep])[1]), 0);
               continue;
             end;
-            if pos(idVolt, inlist[i])>0 then begin
+            if pos(idVolt, inlist[i])>0 then begin     {ADC steps}
               lblVolt.Caption:='ADC value'+gleich+inlist[i].Split([sep])[1];
               continue;
             end;
@@ -579,15 +580,15 @@ begin
                 interv:=1;
                 lblInterval.Caption:=idInterval+gleich+'1 sample';
               end else begin
-                if (interv>99) and (eh>0) then begin   {Optimize interval x axis}
+                if (eh>0) and (interv>99) then begin   {Optimize interval x-axis}
                   eh:=eh-1;
                   interv:=interv/1000;
                 end;
                 lblInterval.Caption:=idInterval+gleich+FormatFloat(floatform, interv)+EinheitStr(eh);
               end;
               lblX.Caption:=rsTime+tab1+kop+EinheitStr(eh)+kcl;
-              Chart.AxisList[1].Title.Caption:=lblX.Caption;
               lblDelta.Caption:=rsDelta+tab1+kop+EinheitStr(eh)+kcl;
+              Chart.AxisList[1].Title.Caption:=lblX.Caption;
               continue;
             end;
             if pos(idTeiler, inlist[i])>0 then begin   {Probe attenuation}
