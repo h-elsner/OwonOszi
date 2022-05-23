@@ -8,7 +8,7 @@ resourcestring                                     {deutsch}
 {$ENDIF}
 
 rsAction='Show saved waveforms from';
-rsTime='Time base';
+rsTime='Time';
 rsVolt='Voltage';
 rsDelta='X-Delta';
 openCSVfile='Open CSV file...';

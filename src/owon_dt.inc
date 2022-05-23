@@ -1,6 +1,6 @@
 resourcestring                                     {deutsch}
 
-  manual='Owon HDS242 User Manual_de.PDF';
+  manual='HDS242_Manual_de.PDF';
 {$IFDEF LINUX}
   DownURL='/downloads/owon_oszi.tar.gz';
 {$ELSE}
@@ -8,7 +8,7 @@ resourcestring                                     {deutsch}
 {$ENDIF}
 
 rsAction='Auswerten gespeicherter Anzeigen vom';
-rsTime='Zeitbasis';
+rsTime='Zeit';
 rsVolt='Spannung';
 rsDelta='X-Delta';
 openCSVfile='CSV-Datei öffnen...';
