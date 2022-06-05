@@ -16,3 +16,5 @@ With cursors you can measure intervals:
 
 
 Because HDS242 has a limited number of filenames you can save a copy of the CSV-files with a unique file name.
+
+To download executables go to "Releases" on the right side of this page. Executables are availbale for Windows and LINUX (64bit). Ican also create one for raspberry PI on request.
