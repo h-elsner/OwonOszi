@@ -26,13 +26,13 @@
 Format CSV files from HDS242 (example):
 
 Channel			  :,CH1
-Frequency			  :,F=1.498kHz
+Frequency		  :,F=1.498kHz
 Period 			  :,T=667.4us
-PK-PK				  :,Vpp=1.280V
+PK-PK			  :,Vpp=1.280V
 Average			  :,V=-9.333mV
 Vertical pos		  :,0.00mV
 Probe attenuation	  :,1X
-Voltage per ADC value:,20.00mV
+Voltage per ADC value     :,20.00mV
 Time interval		  :,0.20uS
 
 index,CH1_Voltage(mV)
@@ -174,7 +174,7 @@ const
   tab1=' ';
   kop='[';
   kcl=']';
-  sep=',';                                             {data separator}
+  sep=',';                                             {Data separator}
   dez='.';                                             {Decimal separator in use}
   gleich='=';
   ziff=['0'..'9', '-', '+', dez];                      {Valid digits and signs for float}

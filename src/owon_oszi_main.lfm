@@ -1,7 +1,7 @@
 object main: Tmain
-  Left = 1277
+  Left = 1258
   Height = 440
-  Top = 147
+  Top = 137
   Width = 640
   AllowDropFiles = True
   Caption = 'main'
