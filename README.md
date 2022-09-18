@@ -2,7 +2,7 @@
 
 Show CSV files with saved waveforms from handheld oscilloscope HDS242.
 You now can see the waveforms on a larger screen and zoom into it.
-Zoom with mouse wheel, pan with Left mouse button, cursors with Left mouse button + Shift.
+Zoom with mouse wheel, pan with Left mouse button, set cursors with Left mouse button + Shift.
 
 ![Screenshot normal waveform](Screenshot_normal.png)
 
