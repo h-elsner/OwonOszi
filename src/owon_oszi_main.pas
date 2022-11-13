@@ -203,8 +203,8 @@ implementation
 
 {$R *.lfm}
 
-{.$I owon_dt.inc}                                       {German GUI}
-{$I owon_en.inc}                                      {English GUI}
+{$I owon_dt.inc}                                       {German GUI}
+{.$I owon_en.inc}                                      {English GUI}
 
 { Tmain }
 
@@ -359,6 +359,9 @@ procedure Tmain.SetCSVenv;                             {Setup for CSV mode}
 begin
   rgTeiler.Enabled:=false;
   Image.Visible:=false;
+  Image.Stretch:=false;
+  Image.Proportional:=false;
+//  Image.Tag:=0;                                        {Disable image zoom}
   Chart.Visible:=true;
   actSaveScreen.Enabled:=true;
 end;
@@ -367,6 +370,9 @@ procedure Tmain.SetBMPenv;                             {Setup for BMP mode}
 begin
   rgTeiler.Enabled:=false;
   Image.Visible:=true;
+  Image.Stretch:=true;
+  Image.Proportional:=true;
+//  Image.Tag:=1;                                        {Enable image zoom}
   Chart.Visible:=false;
   actSaveScreen.Enabled:=false;
   ClearMetaData;

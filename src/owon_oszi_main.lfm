@@ -1,13 +1,13 @@
 object main: Tmain
-  Left = 1258
-  Height = 440
-  Top = 137
+  Left = 1853
+  Height = 460
+  Top = 189
   Width = 640
   AllowDropFiles = True
   Caption = 'main'
-  ClientHeight = 416
+  ClientHeight = 436
   ClientWidth = 640
-  Constraints.MinHeight = 440
+  Constraints.MinHeight = 460
   Constraints.MinWidth = 640
   KeyPreview = True
   Menu = MainMenu
@@ -72,18 +72,18 @@ object main: Tmain
   end
   object Pic: TPanel
     Left = 200
-    Height = 358
+    Height = 378
     Top = 58
     Width = 440
     Align = alClient
-    ClientHeight = 358
+    ClientHeight = 378
     ClientWidth = 440
     Color = clWhite
     ParentColor = False
     TabOrder = 2
     object Image: TImage
       Left = 1
-      Height = 356
+      Height = 376
       Top = 1
       Width = 438
       Align = alClient
@@ -3676,7 +3676,7 @@ object main: Tmain
     end
     object Chart: TChart
       Left = 1
-      Height = 356
+      Height = 376
       Top = 1
       Width = 438
       AxisList = <      
@@ -3757,16 +3757,16 @@ object main: Tmain
   end
   object LeftGUI: TPanel
     Left = 0
-    Height = 358
+    Height = 378
     Top = 58
     Width = 200
     Align = alLeft
-    ClientHeight = 358
+    ClientHeight = 378
     ClientWidth = 200
     TabOrder = 1
     object rgTeiler: TRadioGroup
       Left = 10
-      Height = 56
+      Height = 72
       Top = 192
       Width = 182
       AutoFill = True
@@ -3778,7 +3778,7 @@ object main: Tmain
       ChildSizing.ShrinkVertical = crsScaleChilds
       ChildSizing.Layout = cclLeftToRightThenTopToBottom
       ChildSizing.ControlsPerLine = 1
-      ClientHeight = 39
+      ClientHeight = 55
       ClientWidth = 180
       Enabled = False
       ItemIndex = 0
@@ -3787,8 +3787,6 @@ object main: Tmain
         '1:10'
       )
       OnClick = rgTeilerClick
-      ParentBackground = False
-      ParentColor = False
       TabOrder = 0
     end
     object lblFreq: TLabel
@@ -3843,7 +3841,7 @@ object main: Tmain
     object gbKursor: TGroupBox
       Left = 10
       Height = 80
-      Top = 264
+      Top = 280
       Width = 182
       Caption = 'gbKursor'
       ClientHeight = 63
