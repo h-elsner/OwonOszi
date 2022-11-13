@@ -8,7 +8,7 @@ Probe attenuation	  :,1X
 Voltage per ADC value:,20.00mV
 Time interval		  :,0.40uS
 
-index,CH1_Voltage(mV)
+index,CH1_coltage(mV)
 0,380.00
 1,380.00
 2,380.00
