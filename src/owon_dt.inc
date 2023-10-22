@@ -16,7 +16,7 @@ openBMPfile='Screenshot öffnen...';
 capClose='&Beenden';
 hntClose='Programm beenden.';
 capImage='&Screenshot';
-hntImage='Vom HDS242 aufgenommenen Screenshot anzeigen.';
+hntImage='Vom HDS242 aufgenommene Screenshot anzeigen.';
 capCSVfile='&CSV-Datei';
 hntCSVfile='Vom HDS242 als CSV-Datei gespeicherte Waveform anzeigen.';
 capFile='&Datei';
@@ -31,13 +31,14 @@ capSaveScreen='&Anzeige speichern...';
 capSaveDlg='Anzeige in PNG-Datei speichern...';
 hntSaveScreen='Anzeige als Bild in PNG-Datei speichern.';
 capKursor='Kursor (+ Shift)';
-hntKursor='Kursor mit linker Maustaste + Shift-Taste anzeigen';
+hntKursor='Kursor mit Shift + linker Maustaste anzeigen.'+lineending+
+          'Bewege den 2. Kursor mit Shift + Kursortasten zur Messung von Zeiten.';
 capDownload='Download Update';
 capHomepage='Homepage';
 errNoData='Keine gültigen Daten';
 capCopy='Kopie speichern';
-hntCopy='Eine Kopie der Waveform in dem ausgewählten Verzeichnis speichern.';
-hntCopyDir='Speicherort auswählen';
+hntCopy='Immer eine Kopie der Waveform in dem ausgewählten Verzeichnis speichern.';
+hntCopyDir='Speicherort für die Kopien auswählen';
 hntOK='Diesen Dialog schliessen.';
 
 

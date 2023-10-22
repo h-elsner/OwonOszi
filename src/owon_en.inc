@@ -1,4 +1,4 @@
-resourcestring                                     {deutsch}
+resourcestring                                     {english}
 
   manual='HDS200_series_user_manual.pdf';
 {$IFDEF LINUX}
@@ -31,13 +31,14 @@ capSaveScreen='&Save chart...';
 capSaveDlg='Save chart as PNG file...';
 hntSaveScreen='Save chart as picture to PNG file.';
 capKursor='Cursor (+ Shift)';
-hntKursor='Show cursor by left mouse key + Shift key.';
+hntKursor='Set cursor with Shift + left mouse key.'+lineending+
+          'Move second cursor with Shift + cursor keys to measure time.';
 capDownload='Download updates';
 capHomepage='Homepage';
 errNoData='No valid data';
 capCopy='Save a copy';
-hntCopy='Save a copy of the waveform in a selected local directory.';
-hntCopyDir='Select directory.';
+hntCopy='Always save a copy of the waveform in the selected local directory.';
+hntCopyDir='Select directory for copies.';
 hntOK='Close this dialog.';
 
 

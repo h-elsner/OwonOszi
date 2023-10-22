@@ -23,6 +23,9 @@
       Left mouse button + Shift: X-Delta shows the interval between the two cursors.
 
 
+https://github.com/h-elsner/OwonOszi
+
+
 Format CSV files from HDS242 (example):
 
 Channel			  :,CH1
@@ -56,7 +59,7 @@ interface
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, lclintf,
   XMLPropStorage, ActnList, Menus, ExtCtrls, Buttons, StdCtrls, EditBtn,
-  TAGraph, TASeries, TATools, TADataTools, Types, lazUTF8;
+  TAGraph, TASeries, TATools, TADataTools, Types, lazUTF8, LCLType;
 
 type
 
@@ -203,8 +206,8 @@ implementation
 
 {$R *.lfm}
 
-{$I owon_dt.inc}                                       {German GUI}
-{.$I owon_en.inc}                                      {English GUI}
+{.$I owon_dt.inc}                                       {German GUI}
+{$I owon_en.inc}                                      {English GUI}
 
 { Tmain }
 
@@ -352,6 +355,14 @@ begin                                                  {Load screenshots from os
     SetBMPenv;
     Caption:=osziname+tab1+kop+ExtractFileName(OpenDialog.FileName)+kcl;
     Image.Picture.LoadFromFile(OpenDialog.FileName);
+
+{Einen Text in das Bild kritzeln:
+ https://lazplanet.blogspot.com/2013/06/how-to-draw-text-on-canvas.html
+
+    Image.Canvas.Brush.Style:=bsClear;
+    Image.Canvas.Font.Color:=clYellow;
+    Image.Canvas.TextOut(20, 20, ExtractFileName(OpenDialog.FileName));
+}
   end;
 end;
 
@@ -361,7 +372,6 @@ begin
   Image.Visible:=false;
   Image.Stretch:=false;
   Image.Proportional:=false;
-//  Image.Tag:=0;                                        {Disable image zoom}
   Chart.Visible:=true;
   actSaveScreen.Enabled:=true;
 end;
@@ -372,7 +382,6 @@ begin
   Image.Visible:=true;
   Image.Stretch:=true;
   Image.Proportional:=true;
-//  Image.Tag:=1;                                        {Enable image zoom}
   Chart.Visible:=false;
   actSaveScreen.Enabled:=false;
   ClearMetaData;
@@ -637,19 +646,19 @@ procedure Tmain.FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin                                                  {Move red cursor lnHorPos}
   if Chart.Visible then begin
     if ssShift in Shift then begin                     {Shift + ...}
-      if key=39 then begin                             {Right}
+      if key=vk_right then begin                       {Right}
         lnHorPos.Position:=lnHorPos.Position+interv;
         exit;
       end;
-      if key=37 then begin                             {Left}
+      if key=vk_left then begin                        {Left}
         lnHorPos.Position:=lnHorPos.Position-interv;
         exit;
       end;
-      if key=33 then begin                             {Page up}
+      if (key=33) or (key=vk_up) then begin            {Page up, larger step}
         lnHorPos.Position:=lnHorPos.Position+interv*10;
         exit;
       end;
-      if key=34 then begin                             {Page down}
+      if (key=34) or (key=vk_down) then begin          {Page down}
         lnHorPos.Position:=lnHorPos.Position-interv*10;
         exit;
       end;
